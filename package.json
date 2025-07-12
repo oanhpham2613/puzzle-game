@@ -4,12 +4,11 @@
     "version": "1.2.0",
     "type": "module",
     "repository": {
-        "type": "git",
-        "url": "git+https://github.com/phaserjs/template-react.git"
+        "type": "git"
     },
-    "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
+    "author": "Phaser Studio",
     "license": "MIT",
-    "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
+    "licenseUrl": "",
     "bugs": {
         "url": "https://github.com/phaserjs/template-react/issues"
     },
@@ -22,7 +21,8 @@
     ],
     "scripts": {
         "dev": "node log.js dev & vite --config vite/config.dev.mjs",
-        "build": "node log.js build & vite build --config vite/config.prod.mjs",
+        "build": "vite build --config vite/config.prod.mjs",
+        "build-local": "node log.js build && vite build --config vite/config.prod.mjs",
         "dev-nolog": "vite --config vite/config.dev.mjs",
         "build-nolog": "vite build --config vite/config.prod.mjs"
     },
