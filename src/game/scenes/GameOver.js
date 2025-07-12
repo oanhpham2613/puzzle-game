@@ -11,7 +11,7 @@ export class GameOver extends Scene {
         this.sceneManager = new SceneManager(this);
     }
     init(data) {
-        this.score = data.score;
+        this.score = data.score || 0;
         this.width = this.scale.width;
         this.height = this.scale.height;
         this.centerX = this.width / 2;
@@ -22,6 +22,9 @@ export class GameOver extends Scene {
     create() {
         this.cameras.main.setBackgroundColor(Colors.background);
         const bigPaintTeddy = this.add.image(385, 550, 'bigPaintTeddy').setScale(1);
+        const star = this.add.image(this.width * 0.5, this.height * 0.5, "star").setName("star").setScale(0.1);
+        const particles = this.add.particles('star');
+
         // const congratulation = this.add.image(385, 550, 'congratulation').setScale(1);
         centerText(this, 480, "Game over", this.textTitleStyle)
         // const playAgainIcon = this.add.image(0, 0, "playAgain").setName("playAgain").setScale(0.25);
@@ -36,6 +39,28 @@ export class GameOver extends Scene {
             this.input.manager.canvas.style.cursor = 'pointer';
             this.sceneManager.fadeAndStart("SelectBear", 500)
         })
+        const emitter = this.add.particles(
+            this.centerX / 2, this.centerY / 2,
+            "star",
+            {
+                scale: 0.08,
+                lifespan: 5000,
+                quantity: 10,
+                speed: 100,
+                on: false,
+                frequency: -1
+            }
+        );
+
+        emitter.explode(40, this.centerX / 2, this.centerY / 2);
+
+        this.time.delayedCall(500, () => {
+            emitter.explode(40, this.centerX / 2, this.centerY / 2);
+        });
+
+        this.time.delayedCall(1000, () => {
+            emitter.explode(40, this.centerX / 2, this.centerY / 2);
+        });
 
         EventBus.emit('current-scene-ready', this);
     }

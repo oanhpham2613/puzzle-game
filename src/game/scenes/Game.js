@@ -13,6 +13,7 @@ export class Game extends Scene {
     init(data) {
         // this.selectedBear = "PinkTeddy";
         this.selectedBear = data.selectedBear;
+        this.soundBg = data.soundBg || this.sound.add('bgSound', { loop: true, volume: 0.5 })
         this.dataBearsTarget = {}
         this.piecesBear = this.generateTeddyData(25);
         this.totalPieces = 25;
@@ -25,11 +26,14 @@ export class Game extends Scene {
         const soundWrong = this.sound.add('wrong', { loop: false, volume: 1 })
         this.pieces = [];
         const bigPaintTeddy = this.add.image(385, 550, 'backgroundGame').setScale(1.55).setOrigin(0.5, 0.39);
+        const star = this.add.particles(100, this.scale.height * 0.07, "star").setName("star").setScale(0.1);
         const back = this.add.image(100, this.scale.height * 0.07, "goBack").setName("goBack").setScale(0.3);
         centerText(this, 250, "YOUR SCORE", this.textTitleStyle)
         this.showHeart()
         back.setInteractive().on('pointerdown', () => {
-            this.scene.start('SelectBear');
+            this.sceneManager.fadeAndStart("SelectBear", {}, 500, () => {
+                this.soundBg.stop();
+            })
         })
         const container1 = this.showBearInContainer(this.selectedBear, 'original', this.scale.width * 0.25, this.scale.height * 0.5, 280);
         const container2 = this.showBearInContainer(this.selectedBear, 'shadow', this.scale.width * 0.75, this.scale.height * 0.5, 280);
@@ -77,6 +81,19 @@ export class Game extends Scene {
                 scaleBounce(this, gameObject, 400, this.pieceScale + 0.1, this.pieceScale);
                 gameObject.snapped = true;
                 gameObject.disableInteractive();
+                const emitter = this.add.particles(
+                    worldPoint.x, worldPoint.y,
+                    "star",
+                    {
+                        scale: 0.06,
+                        lifespan: 1000,
+                        quantity: 3,
+                        speed: 100,
+                        on: false,
+                        frequency: -1
+                    }
+                );
+                emitter.explode(3, gameObject.correctWorldX, gameObject.correctWorldY);
                 this.completedPieces++;
                 this.checkPuzzleComplete();
                 this.updateProgressBar();
@@ -91,7 +108,7 @@ export class Game extends Scene {
                 }
 
                 if (this.lives <= 0) {
-                    this.sceneManager.fadeAndStart('GameOver', { score: this.completedPieces}, 500);
+                    this.sceneManager.fadeAndStart('GameOver', { score: this.completedPieces }, 500);
                 }
                 container1.add(gameObject);
                 gameObject.setPosition(gameObject.input.dragStartX, gameObject.input.dragStartY);
@@ -116,7 +133,6 @@ export class Game extends Scene {
 
     isGameObjectInContainer(worldX, worldY, container) {
         const bounds = container.getBounds();
-        console.log({ worldX, boundsX: bounds.width, worldY, boundsY: bounds.height });
         return (
             worldX <= bounds.width / 2 &&
             worldX >= -bounds.width / 2 &&
@@ -285,8 +301,6 @@ export class Game extends Scene {
         const border = this.add.graphics();
         border.lineStyle(2, 0xD1D1D1, 1);
         border.strokeRect(this.scale.width * 0.125, this.scale.height * 0.20, maxWidth, 20);
-
-        console.log({ "this.completedPieces": this.completedPieces })
     }
     showHeart() {
         const numHearts = 5;

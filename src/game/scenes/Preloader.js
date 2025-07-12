@@ -7,24 +7,19 @@ export class Preloader extends Scene {
     }
     preload() {
         const { width, height } = this.cameras.main;
-        // Nền trắng
         this.cameras.main.setBackgroundColor(Colors.background);
 
-        // Viền thanh loading
         const box = this.add.graphics();
         box.fillStyle(0x222222, 0.8);
         box.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
 
-        // Thanh loading
         const bar = this.add.graphics();
 
-        // Text phần trăm
         const percentText = this.add.text(width / 2, height / 2, '0%', {
             fontSize: '18px',
             fill: '#000'
         }).setOrigin(0.5);
 
-        // Cập nhật khi loading tiến triển
         this.load.on('progress', (value) => {
             bar.clear();
             bar.fillStyle(0xffffff, 1);
@@ -32,13 +27,12 @@ export class Preloader extends Scene {
             percentText.setText(parseInt(value * 100) + '%');
         });
 
-        // Khi loading xong
         this.load.on('complete', () => {
             bar.destroy();
             box.destroy();
             percentText.destroy();
         });
-        // Tải file: bạn thay file thật bằng hình ảnh game bạn
+
         let listBearImage = ['BePinkTeddy', 'PinkTeddy', 'BrownTeddy']
         listBearImage.map(bear => {
             let i = 1
@@ -65,7 +59,7 @@ export class Preloader extends Scene {
         this.load.image('PinkTeddy', 'PinkTeddy.png')
         this.load.image('BrownTeddy', 'BrownTeddy.png')
         this.load.image('BePinkTeddy', 'BePinkTeddy.png')
-        this.load.image('star', 'star.png')
+        this.load.image('star', 'star1.webp')
         this.load.image('flag', 'flag.png')
         this.load.image('cloud', 'cloud.png')
         this.load.image('cloud2', 'cloud-2.webp')

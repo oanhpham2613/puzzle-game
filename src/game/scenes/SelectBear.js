@@ -15,8 +15,15 @@ export class SelectBear extends Scene {
     }
 
     create() {
-        const sound = this.sound.add('bgSound', { loop: true, volume: 0.5 } )
-        sound.play();
+        // const bgSound = this.sound.add('bgSound', { loop: true, volume: 0.5 });
+        const bgSound = this.sound.get('bgSound');
+
+        if (!bgSound) {
+            this.sound.add('bgSound', { loop: true, volume: 0.5 }).play();
+        } else if (!bgSound.isPlaying) {
+            bgSound.play();
+        }
+
         const bigPaintTeddy = this.add.image(385, 550, 'bigPaintTeddy').setScale(1);
         const cloud = this.add.image(641, 115, 'cloud').setName('cloud').setScale(0.5);
         const cloud2 = this.add.image(140, 115, 'cloud').setName('cloud2').setScale(0.5);
@@ -46,7 +53,7 @@ export class SelectBear extends Scene {
             bear.setInteractive()
             bear.on('pointerdown', () => {
                 shake(this, bear);
-                this.sceneManager.fadeAndStart("Game", { selectedBear: bear.name }, 500)
+                this.sceneManager.fadeAndStart("Game", { selectedBear: bear.name, bgSound }, 500)
             });
 
             bear.on('pointerover', () => {
@@ -81,7 +88,6 @@ export class SelectBear extends Scene {
             this.logoTween.stop();
             this.logoTween = null;
         }
-
         this.scene.start('Game');
     }
 
