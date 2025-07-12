@@ -3,7 +3,6 @@ export class SceneManager {
     this.scene = scene;
   }
 
-  // Hàm chuyển cảnh với hiệu ứng fade out
   transitionWithFade(sceneName, data = {}, duration = 1000) {
     this.scene.cameras.main.fadeOut(duration, 0, 0, 0);
 
@@ -13,7 +12,6 @@ export class SceneManager {
     });
   }
 
-  // Hàm chuyển cảnh với hiệu ứng fade và thời gian tùy chỉnh
   fadeAndStart(sceneName, data = {}, duration = 1000) {
     this.scene.cameras.main.fadeOut(duration, 0, 0, 0);
 
@@ -22,9 +20,7 @@ export class SceneManager {
     });
   }
 
-  // Hàm chuyển cảnh theo chiều slide (giả lập)
   slideTransition(sceneName, data = {}, duration = 1000, direction = 'left') {
-    // Giả lập hiệu ứng slide bằng tween
     const camera = this.scene.cameras.main;
 
     this.scene.tweens.add({

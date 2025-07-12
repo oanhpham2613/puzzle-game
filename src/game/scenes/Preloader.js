@@ -77,6 +77,11 @@ export class Preloader extends Scene {
         this.load.image('heart', 'heart.png');
         this.load.image('puzzle', 'puzzle.png');
         this.load.image('backgroundGame', 'backgroundGame.png');
+        // this.load.image('congratulation', 'congratulation.png');
+        this.load.audio('bgSound', 'sounds/bgSound.mp3');
+        this.load.audio('right', 'sounds/right.mp3');
+        this.load.audio('wrong', 'sounds/wrong.mp3');
+        this.load.audio('mouseClick', 'sounds/mouseClick.mp3');
     }
 
     create() {

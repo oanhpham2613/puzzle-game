@@ -1,12 +1,12 @@
 {
-    "name": "puzzle game",
-    "description": "A Phaser 3 project template that demonstrates React communication and uses Vite for bundling.",
+    "name": "Puzzle game",
+    "description": "Puzzle game template using Phaser 3 and React",
     "version": "1.2.0",
     "type": "module",
     "repository": {
         "type": "git"
     },
-    "author": "Phaser Studio",
+    "author": "Oanh Pham",
     "license": "MIT",
     "licenseUrl": "",
     "bugs": {

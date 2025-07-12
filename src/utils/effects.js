@@ -1,4 +1,3 @@
-// 1. Fade in
 export function fadeIn(scene, target, duration = 500, delay = 0) {
   return scene.tweens.add({
     targets: target,
@@ -9,7 +8,6 @@ export function fadeIn(scene, target, duration = 500, delay = 0) {
   });
 }
 
-// 2. Fade out
 export function fadeOut(scene, target, duration = 500, delay = 0) {
   return scene.tweens.add({
     targets: target,
@@ -20,7 +18,6 @@ export function fadeOut(scene, target, duration = 500, delay = 0) {
   });
 }
 
-// 3. Scale in (zoom từ nhỏ)
 export function scaleIn(scene, target, duration = 500, delay = 0, fromScale = 0) {
   target.setScale(fromScale);
   return scene.tweens.add({
@@ -32,7 +29,6 @@ export function scaleIn(scene, target, duration = 500, delay = 0, fromScale = 0)
   });
 }
 
-// 4. Scale out (thu nhỏ biến mất)
 export function scaleOut(scene, target, duration = 500, delay = 0) {
   return scene.tweens.add({
     targets: target,
@@ -43,7 +39,6 @@ export function scaleOut(scene, target, duration = 500, delay = 0) {
   });
 }
 
-// 5. Bounce (nảy lên và xuống)
 export function bounce(scene, target, bounceHeight = 30, duration = 400) {
   return scene.tweens.add({
     targets: target,
@@ -55,7 +50,15 @@ export function bounce(scene, target, bounceHeight = 30, duration = 400) {
   });
 }
 
-// 6. Shake (rung nhẹ)
+export function scaleBounce(scene, target, duration = 400, fromScale = 1.05, toScale = 1) {
+  return scene.tweens.add({
+    targets: target,
+    scale: { from: fromScale, to: toScale },
+    ease: 'Bounce.easeOut',
+    duration
+  });
+}
+
 export function shake(scene, target, strength = 5, repeat = 3, duration = 80) {
   console.log({ "shake": scene.tweens });
   return scene.tweens.add({
@@ -68,7 +71,6 @@ export function shake(scene, target, strength = 5, repeat = 3, duration = 80) {
   });
 }
 
-// 7. Flash (nhấp nháy nhanh)
 export function flash(scene, target, repeat = 2, duration = 100) {
   return scene.tweens.add({
     targets: target,
@@ -90,7 +92,6 @@ export function moveTo(scene, target, x, y, duration = 500, ease = 'Power2') {
   });
 }
 
-// 9. Float (lên xuống nhẹ – lặp vô hạn)
 export function floatLoop(scene, target, range = 10, duration = 1000) {
   return scene.tweens.add({
     targets: target,
@@ -102,7 +103,6 @@ export function floatLoop(scene, target, range = 10, duration = 1000) {
   });
 }
 
-// 10. Appear & fade (hiện ra – chờ – biến mất)
 export function appearAndFade(scene, target, duration = 800, stay = 500) {
   return scene.tweens.add.timeline({
     targets: target,
@@ -138,10 +138,10 @@ export function animateCloud(scene, target) {
 export function animateSpin(scene, target) {
   return scene.tweens.add({
     targets: target,
-    angle: 360,  
-    duration: 1000, 
+    angle: 360,
+    duration: 1000,
     ease: 'Sine.easeOut',
-    repeat: -1, 
+    repeat: -1,
     repeatDelay: 1000
   });
 }

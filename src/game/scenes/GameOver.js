@@ -10,7 +10,8 @@ export class GameOver extends Scene {
         super('GameOver');
         this.sceneManager = new SceneManager(this);
     }
-    init() {
+    init(data) {
+        this.score = data.score;
         this.width = this.scale.width;
         this.height = this.scale.height;
         this.centerX = this.width / 2;
@@ -21,8 +22,10 @@ export class GameOver extends Scene {
     create() {
         this.cameras.main.setBackgroundColor(Colors.background);
         const bigPaintTeddy = this.add.image(385, 550, 'bigPaintTeddy').setScale(1);
-        centerText(this, 520, "Game over", this.textTitleStyle)
+        // const congratulation = this.add.image(385, 550, 'congratulation').setScale(1);
+        centerText(this, 480, "Game over", this.textTitleStyle)
         // const playAgainIcon = this.add.image(0, 0, "playAgain").setName("playAgain").setScale(0.25);
+        const yourScore = centerText(this, 560, `Your Score: ${this.score * 4}`, this.textBodyStyle)
         const playAgain = centerText(this, 0, "Play Again", this.textBodyStyle)
         const discover = centerText(this, 0, "Discover More", this.textBodyStyle)
 

@@ -3,6 +3,7 @@ import { Scene } from 'phaser';
 import Colors from '../../constants/colors'
 import { SceneManager } from '../../utils/sceneManager';
 import { centerText } from '../../utils/responsive'
+import { scaleBounce } from '../../utils/effects'
 
 export class Game extends Scene {
     constructor() {
@@ -16,9 +17,12 @@ export class Game extends Scene {
         this.piecesBear = this.generateTeddyData(25);
         this.totalPieces = 25;
         this.completedPieces = 0;
+        this.pieceScale = 0.5;
         this.textBodyStyle = { fontFamily: 'Arial Black', fontSize: 30, color: Colors.textOrange, background: Colors.black, align: 'center' }
     }
     create() {
+        const soundRight = this.sound.add('right', { loop: false, volume: 1 })
+        const soundWrong = this.sound.add('wrong', { loop: false, volume: 1 })
         this.pieces = [];
         const bigPaintTeddy = this.add.image(385, 550, 'backgroundGame').setScale(1.55).setOrigin(0.5, 0.39);
         const back = this.add.image(100, this.scale.height * 0.07, "goBack").setName("goBack").setScale(0.3);
@@ -31,7 +35,7 @@ export class Game extends Scene {
         const container2 = this.showBearInContainer(this.selectedBear, 'shadow', this.scale.width * 0.75, this.scale.height * 0.5, 280);
         const bearImages = container1.bearImages;
         bearImages.forEach((piece, i) => {
-            piece.setInteractive();
+            piece.setInteractive({ cursor: 'pointer' });
             this.input.setDraggable(piece);
             piece.idName = piece.name;
             const posTargetLocal = this.dataBearsTarget[`${piece.idName}`]?.local;
@@ -39,14 +43,11 @@ export class Game extends Scene {
 
             if (!posTargetWorld && !posTargetLocal) return;
 
-            piece.correctWorldX = posTargetWorld[0];
+            piece.correctWorldX = posTargetLocal[0];
             piece.correctWorldY = posTargetLocal[1];
             piece.snapped = false;
             this.pieces.push(piece);
 
-        });
-        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            gameObject.setPosition(dragX, dragY);
         });
         this.input.on('dragstart', (pointer, gameObject) => {
             if (gameObject.snapped) {
@@ -55,18 +56,45 @@ export class Game extends Scene {
                 this.updateProgressBar();
             }
         });
+
+        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            gameObject.setPosition(dragX, dragY);
+        });
         this.input.on('dragend', (pointer, gameObject) => {
+            const worldPoint = gameObject.getWorldTransformMatrix().transformPoint(0, 0);
+            const container2Matrix = container2.getWorldTransformMatrix();
+            const local = container2Matrix.applyInverse(worldPoint.x, worldPoint.y);
+            container2.add(gameObject);
+            gameObject.setPosition(local.x, local.y);
             const id = gameObject.idName;
             const dx = Math.abs(gameObject.x - gameObject.correctWorldX);
             const dy = Math.abs(gameObject.y - gameObject.correctWorldY);
+
             if (dx < 50 && dy < 50) {
+                soundRight.play();
                 gameObject.setDepth(10);
                 gameObject.setPosition(gameObject.correctWorldX, gameObject.correctWorldY);
+                scaleBounce(this, gameObject, 400, this.pieceScale + 0.1, this.pieceScale);
                 gameObject.snapped = true;
+                gameObject.disableInteractive();
                 this.completedPieces++;
                 this.checkPuzzleComplete();
                 this.updateProgressBar();
             } else {
+                soundWrong.play();
+                if (this.lives > 0) {
+                    if (this.isGameObjectInContainer(gameObject.x, gameObject.y, container2)) {
+                        this.lives--;
+                        const lostHeart = this.hearts[this.lives];
+                        lostHeart.setTint(0x555555).setAlpha(0.4);
+                    }
+                }
+
+                if (this.lives <= 0) {
+                    this.sceneManager.fadeAndStart('GameOver', { score: this.completedPieces}, 500);
+                }
+                container1.add(gameObject);
+                gameObject.setPosition(gameObject.input.dragStartX, gameObject.input.dragStartY);
                 this.tweens.add({
                     targets: gameObject,
                     x: gameObject.x + 10,
@@ -77,22 +105,24 @@ export class Game extends Scene {
                         gameObject.setPosition(gameObject.input.dragStartX, gameObject.input.dragStartY);
                     }
                 });
-                if (this.lives > 0) {
-                    this.lives--;
-                    const lostHeart = this.hearts[this.lives];
-                    lostHeart.setTint(0x555555).setAlpha(0.4);
-                }
 
-                if (this.lives <= 0) {
-                    // Game over nếu hết tim
-                    this.sceneManager.fadeAndStart('GameOver');
-                }
             }
         });
 
         this.showProcessBar()
         this.updateProgressBar();
         EventBus.emit('current-scene-ready', this);
+    }
+
+    isGameObjectInContainer(worldX, worldY, container) {
+        const bounds = container.getBounds();
+        console.log({ worldX, boundsX: bounds.width, worldY, boundsY: bounds.height });
+        return (
+            worldX <= bounds.width / 2 &&
+            worldX >= -bounds.width / 2 &&
+            worldY <= bounds.height / 2 &&
+            worldY >= -bounds.height / 2
+        );
     }
 
     shuffleArray(array) {
@@ -136,14 +166,18 @@ export class Game extends Scene {
         const halfW = containerSize / 2;
         const halfH = containerSize / 2;
         const halfSize = containerSize / 2;
-        const halfImage = 56 / 2;
+        const cols = 5;
+        const cellSize = containerSize / cols;
         const padding = 0
         if (typeBearDisplay == 'original') {
             const scale = this.setScaleImage()
-            images.forEach((img, index) => {
-                // let name = `${this.selectedBear}-${i}`
-                const x = Phaser.Math.Between(-halfSize + halfImage, halfSize - halfImage);
-                const y = Phaser.Math.Between(-halfSize + halfImage, halfSize - halfImage);
+            this.pieceScale = scale;
+            this.shuffleArray(images).forEach((img, index) => {
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+
+                const x = -halfSize + col * cellSize + cellSize / 2;
+                const y = -halfSize + row * cellSize + cellSize / 2;
                 img.setPosition(x, y);
                 img.setOrigin(0.5);
                 img.setScale(scale);
@@ -165,7 +199,7 @@ export class Game extends Scene {
 
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
-                    const localX = startX + col * cellSize + cellSize / 2 + -190;
+                    const localX = startX + col * cellSize + cellSize / 2;
                     const localY = startY + row * cellSize + cellSize / 2;
 
                     const world = container.getWorldTransformMatrix().transformPoint(localX, localY);
@@ -220,13 +254,13 @@ export class Game extends Scene {
         const done = this.pieces.every(piece => piece.snapped);
         if (done) {
             this.time.delayedCall(300, () => {
-                this.sceneManager.fadeAndStart("GameOver", 500)
+                this.sceneManager.fadeAndStart("GameOver", { score: this.completedPieces }, 500)
             });
         }
     }
 
     changeScene() {
-        this.scene.start('GameOver');
+        this.scene.start('GameOver', { score: this.completedPieces });
     }
 
     generateTeddyData(totalSplits) {
@@ -236,17 +270,14 @@ export class Game extends Scene {
     updateProgressBar() {
         if (this.completedPieces < 0) {
             this.time.delayedCall(300, () => {
-                this.sceneManager.fadeAndStart("GameOver", 500)
+                this.sceneManager.fadeAndStart("GameOver", { score: this.completedPieces }, 500)
             });
         }
-        // Clamp để tránh tràn thanh progress
         const percentage = Phaser.Math.Clamp(this.completedPieces / this.totalPieces, 0, 1);
 
-        // Đặt chiều rộng tối đa là 75% màn hình
         const maxWidth = this.scale.width * 0.75;
         const barWidth = maxWidth * percentage;
 
-        // Xoá thanh cũ và vẽ thanh mới
         this.progressBar.clear();
         this.progressBar.fillStyle(0xe95d38, 1);
         this.progressBar.fillRect(this.scale.width * 0.125, this.scale.height * 0.20, barWidth, 20);
@@ -255,7 +286,7 @@ export class Game extends Scene {
         border.lineStyle(2, 0xD1D1D1, 1);
         border.strokeRect(this.scale.width * 0.125, this.scale.height * 0.20, maxWidth, 20);
 
-
+        console.log({ "this.completedPieces": this.completedPieces })
     }
     showHeart() {
         const numHearts = 5;

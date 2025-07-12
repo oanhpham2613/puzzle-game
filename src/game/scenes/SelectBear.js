@@ -15,6 +15,8 @@ export class SelectBear extends Scene {
     }
 
     create() {
+        const sound = this.sound.add('bgSound', { loop: true, volume: 0.5 } )
+        sound.play();
         const bigPaintTeddy = this.add.image(385, 550, 'bigPaintTeddy').setScale(1);
         const cloud = this.add.image(641, 115, 'cloud').setName('cloud').setScale(0.5);
         const cloud2 = this.add.image(140, 115, 'cloud').setName('cloud2').setScale(0.5);
@@ -46,7 +48,7 @@ export class SelectBear extends Scene {
                 shake(this, bear);
                 this.sceneManager.fadeAndStart("Game", { selectedBear: bear.name }, 500)
             });
-    
+
             bear.on('pointerover', () => {
                 this.input.manager.canvas.style.cursor = 'pointer';
                 this.tweens.add({
@@ -57,7 +59,7 @@ export class SelectBear extends Scene {
                     ease: 'Power2'
                 });
             });
-    
+
             bear.on('pointerout', () => {
                 this.input.manager.canvas.style.cursor = 'default';
                 this.tweens.add({
